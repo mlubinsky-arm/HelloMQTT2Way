@@ -44,11 +44,15 @@ On my machine it is  /Users/miclub01/gcc-arm-none-eabi-7-2017-q4-major/bin
 
     mbed config –list      # show default config
 On my machine the output is
+
 [mbed] Global config:
+
 GCC_ARM_PATH=/Users/miclub01/gcc-arm-none-eabi-7-2017-q4-major/bin
  
 [mbed] Local config (/Users/miclub01/GIT/HelloMQTT2Way):
+
 TOOLCHAIN=GCC_ARM
+
 TARGET=K64F
  
 
@@ -60,10 +64,11 @@ For the new project downloaded from github you might need to run it once:
     mbed new .
  
 
- ## Special file commited in this repo: config.h
+ ## Special file commited in this repo: config.h (part of Mbed OS)
  This commited  file is very special:
  ./mbed-os/features/mbedtls/inc/mbedtls/config.h
-It is tweaked version of original file, where the following lines are uncommented:
+
+It is tweaked version of original Mbed OS file, where the following lines are uncommented:
 
     #define MBEDTLS_X509_ALLOW_EXTENSIONS_NON_V3
     #define MBEDTLS_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION
@@ -75,7 +80,7 @@ This is not the recommended way to customize the mbed app. Look here for details
 <https://os.mbed.com/docs/v5.8/reference/configuration.html>
 
 The impact of commiting  config.h in this repo is:
-it is conflicting with original file and the folowing command generates the error because it cannot download mbed-os into folder with config.h:
+it is conflicting with original Mbed OS file and the folowing command generates the error because it cannot download Mbed OS into folder with custom config.h:
 
     mbed deploy
  [mbed] ERROR: Library reference "mbed-os.lib" points to a folder "/Users/miclub01/CLONE/HelloMQTT2Way/mbed-os", which is not a valid repository.
@@ -91,10 +96,13 @@ Deploy (board should be visible in Finder  as /Volumes/DAPLINK/):
 
     cp ./BUILD/K64F/GCC_ARM/HelloMQTT2Way.bin /Volumes/DAPLINK/
 
-Make sure your MQTT broker is running, you also might want to see the output in seral port using minicom (described below).
-Run:  press the button on board
+ Make sure your MQTT broker is running.
+
+ Optional: to see the output in serial port start minicom (described below).
+
+ Run:  press the button on board.
  
-## Mosquittto MQTT Broker
+## Mosquitto MQTT Broker
  
     brew install mosquitto
 Edit  /usr/local/etc/mosquitto/mosquitto.conf
@@ -105,15 +113,16 @@ Edit  /usr/local/etc/mosquitto/mosquitto.conf
     certfile /Users/miclub01/GIT/data-emq-broker/conf/serverCerts/10.72.153.34/MQTTBroker.pem
     keyfile /Users/miclub01/GIT/data-emq-broker/conf/serverCerts/10.72.153.34/MQTTBroker.key
  
-Start Mosquito broker:
+Start Mosquitto broker:
 
     brew services start mosquitto
  
  
 If IP adderess of MQTT broker host changes then
  
-a) Update bind_address in /usr/local/etc/mosquitto/mosquitto.conf
-b) Generate new  Server cert:
+  a) Update bind_address in /usr/local/etc/mosquitto/mosquitto.conf
+
+  b) Generate new server cert:
 
     mkdir 10.72.153.34
     cd 10.72.153.34
