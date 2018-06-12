@@ -652,7 +652,7 @@ int MQTTThreadedClient::sendPublish(PubMessage& message)
      
      if (sendPacket(len) == SUCCESS)
      {
-         DBG("Successfully sent publish packet to server ...\r\n");
+         // DBG("Successfully sent publish packet to server ...\r\n");
          return SUCCESS;
      }
     
@@ -853,8 +853,73 @@ void MQTTThreadedClient::sendPingRequest()
 void MQTTThreadedClient::startListener()
 {
 
-    static const int sample_values[50] = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 2, 2, 1, 1, 0, -1, -1, -2, -2, -3, -3, -4, -4, -4, -4, -5, -5, -5, -5, -4, -4, -4, -4, -3, -3, -2, -2, -1, -1 };
+    // static const int sample_values[50] = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 2, 2, 1, 1, 0, -1, -1, -2, -2, -3, -3, -4, -4, -4, -4, -5, -5, -5, -5, -4, -4, -4, -4, -3, -3, -2, -2, -1, -1 };
     long epochtime = 1528406876;
+    static const float sample_values[32] = {
+      0.0,
+      // 0.09983341664682815,
+      0.19866933079506122,
+      // 0.2955202066613396,
+      0.3894183423086505,
+      // 0.479425538604203,
+      0.5646424733950355,
+      // 0.6442176872376911,
+      0.7173560908995228,
+      // 0.7833269096274833,
+      0.8414709848078965,
+      // 0.8912073600614354,
+      0.9320390859672264,
+      // 0.963558185417193,
+      0.9854497299884603,
+      // 0.9974949866040544,
+      0.9995736030415051,
+      // 0.9916648104524686,
+      0.9738476308781951,
+      // 0.9463000876874145,
+      0.9092974268256817,
+      // 0.8632093666488738,
+      0.8084964038195901,
+      // 0.74570521217672,
+      0.6754631805511506,
+      // 0.5984721441039564,
+      0.5155013718214642,
+      // 0.4273798802338298,
+      0.33498815015590466,
+      // 0.23924932921398198,
+      0.1411200080598672,
+      // 0.04158066243329049,
+      -0.058374143427580086,
+      // -0.15774569414324865,
+      -0.25554110202683167,
+      // -0.35078322768961984,
+      -0.44252044329485246,
+      // -0.5298361409084934,
+      -0.6118578909427193,
+      // -0.6877661591839741,
+      -0.7568024953079282,
+      // -0.8182771110644108,
+      -0.8715757724135881,
+      // -0.9161659367494549,
+      -0.9516020738895161,
+      // -0.977530117665097,
+      -0.9936910036334645,
+      // -0.9999232575641008,
+      -0.9961646088358406,
+      // -0.9824526126243325,
+      -0.9589242746631385,
+      // -0.9258146823277321,
+      -0.8834546557201531,
+      // -0.8322674422239008,
+      -0.7727644875559871,
+      // -0.7055403255703919,
+      -0.6312666378723208,
+      // -0.5506855425976376,
+      -0.4646021794137566,
+      // -0.373876664830236,
+      -0.27941549819892586,
+      // -0.18216250427209502,
+      -0.13108940281749641
+      };
 
     mbedtls_printf("In STartListener");
 
@@ -948,23 +1013,27 @@ void MQTTThreadedClient::startListener()
             message.qos = QOS0;
             message.id = 123;
         
-            if (i > sizeof(sample_values) / sizeof(sample_values[0])) {
+            if (i >= sizeof(sample_values) / sizeof(sample_values[0])) {
                 i = 0;
             }
 
             strcpy(&message.topic[0], "topic/DeviceType");
             // sprintf(&message.payload[0], "Testing %d", i);
-            sprintf(&message.payload[0], "{\"DeviceID\":\"53791ab8k93e000000000001001003sf\",\"Resource\":\"phase\",\"Value\":%d,\"TimeStamp\":%ld}", sample_values[i], epochtime++);
+            sprintf(&message.payload[0], "{\"DeviceID\":\"53791ab8k93e000000000001001003sf\",\"Resource\":\"phase\",\"Value\":%.3f,\"TimeStamp\":%ld}", sample_values[i], epochtime);
+            epochtime = epochtime + 2;
             i++;
             message.payloadlen = strlen((const char *) &message.payload[0]);
             if ( sendPublish(message) == SUCCESS) {
                 // Reset timers if we have been able to send successfully
+                DBG("Sent message: ");
+                DBG(message.payload);
+                DBG("\r\n");
+                Thread::wait(1000);
                 resetConnectionTimer();
             } else {
                 // Disconnected?
                 goto reconnect;
             }
-            // // Thread::wait(2000);
 
 
             // // Check if we have messages on the message queue
